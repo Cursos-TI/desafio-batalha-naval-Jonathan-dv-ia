@@ -1,43 +1,131 @@
 #include <stdio.h>
 
+#define TAMANHO 10
+#define NAVIO 3
+#define HABILIDADE_TAMANHO 5 // Tamanho das matrizes de habilidade
 
+// Função para criar a matriz de habilidade em cone
+void criarCone(int habilidade[HABILIDADE_TAMANHO][HABILIDADE_TAMANHO]) {
+    int centro = HABILIDADE_TAMANHO / 2;
+    for (int i = 0; i < HABILIDADE_TAMANHO; i++) {
+        for (int j = 0; j < HABILIDADE_TAMANHO; j++) {
+            if (i >= centro && j >= centro - i + centro && j <= centro + i - centro) {
+                habilidade[i][j] = 1;
+            } else {
+                habilidade[i][j] = 0;
+            }
+        }
+    }
+}
 
+// Função para criar a matriz de habilidade em cruz
+void criarCruz(int habilidade[HABILIDADE_TAMANHO][HABILIDADE_TAMANHO]) {
+    int centro = HABILIDADE_TAMANHO / 2;
+    for (int i = 0; i < HABILIDADE_TAMANHO; i++) {
+        for (int j = 0; j < HABILIDADE_TAMANHO; j++) {
+            if (i == centro || j == centro) {
+                habilidade[i][j] = 1;
+            } else {
+                habilidade[i][j] = 0;
+            }
+        }
+    }
+}
 
-#include <stdio.h> // Inclui a biblioteca padrão de entrada e saída
-
-#define TAMANHO 10 // Define o tamanho do tabuleiro como 10x10
-#define NAVIO 3 // Define o tamanho dos navios como 3 posições
+// Função para criar a matriz de habilidade em octaedro (losango) SEM usar abs
+void criarOctaedroSemAbs(int habilidade[HABILIDADE_TAMANHO][HABILIDADE_TAMANHO]) {
+    int centro = HABILIDADE_TAMANHO / 2;
+    for (int i = 0; i < HABILIDADE_TAMANHO; i++) {
+        for (int j = 0; j < HABILIDADE_TAMANHO; j++) {
+            int distanciaLinha = (i > centro) ? (i - centro) : (centro - i);
+            int distanciaColuna = (j > centro) ? (j - centro) : (centro - j);
+            if (distanciaLinha + distanciaColuna <= centro) {
+                habilidade[i][j] = 1;
+            } else {
+                habilidade[i][j] = 0;
+            }
+        }
+    }
+}
 
 int main() {
-    char linhas[TAMANHO] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'}; // Array com as letras das colunas
-    int tabuleiro[TAMANHO][TAMANHO] = {0}; // Matriz 10x10 para o tabuleiro, inicializada com 0 (água)
+    char linhas[TAMANHO] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'};
+    int tabuleiro[TAMANHO][TAMANHO] = {0};
 
-    // Posiciona navios (exemplo simples)
-    for (int i = 0; i < NAVIO; i++) { // Loop para posicionar o navio horizontalmente
-        tabuleiro[2][3 + i] = 3; // Marca as posições do navio horizontalmente com 3
-        tabuleiro[5 + i][1] = 3; // Marca as posições do navio verticalmente com 3
-         tabuleiro [1][9] = 3; // Marca  uma posição diagonal - direita para esquerda
-        tabuleiro [2][8] = 3; // Marca  uma posição diagonal - direita para esquerda
-        tabuleiro [3][7] = 3; // Marca  uma posição diagonal - direita para esquerda
-        tabuleiro [1][1] = 3; // Marca  uma posição vertical - esquerda para direita
-        tabuleiro [2][2] = 3; // Marca  uma posição vertical - esquerda para direita
-        tabuleiro [3][3] = 3; // Marca  uma posição vertical - esquerda para direita
-    }
+    // Posiciona navios (mantendo o exemplo)
+    
 
-    // Exibe o tabuleiro
-    printf("  "); // Imprime espaços para alinhar as letras das colunas
-    for (int i = 0; i < TAMANHO; i++) { // Loop para imprimir as letras das colunas
-        printf("%c ", linhas[i]); // Imprime cada letra da coluna seguida de um espaço
-    }
-    printf("\n"); 
+    // Cria as matrizes de habilidade
+    int cone[HABILIDADE_TAMANHO][HABILIDADE_TAMANHO] = {0};
+    int cruz[HABILIDADE_TAMANHO][HABILIDADE_TAMANHO] = {0};
+    int octaedro[HABILIDADE_TAMANHO][HABILIDADE_TAMANHO] = {0};
 
-    for (int i = 0; i < TAMANHO; i++) { // Loop para percorrer as linhas do tabuleiro
-        printf("%2d ", i); // Imprime o número da linha (com 2 espaços para alinhamento)
-        for (int j = 0; j < TAMANHO; j++) { // Loop para percorrer as colunas do tabuleiro
-            printf("%d ", tabuleiro[i][j]); // Imprime o valor da posição do tabuleiro seguido de um espaço
+    criarCone(cone);
+    criarCruz(cruz);
+    criarOctaedroSemAbs(octaedro); // Usando a função sem abs
+
+    // Define os pontos de origem das habilidades no tabuleiro
+    int origemConeLinha = 1;
+    int origemConeColuna = 4;
+    int origemCruzLinha = 6;
+    int origemCruzColuna = 5;
+    int origemOctaedroLinha = 8;
+    int origemOctaedroColuna = 2;
+
+    // Aplica a habilidade de cone ao tabuleiro
+    int centroHabilidade = HABILIDADE_TAMANHO / 2;
+    for (int i = 0; i < HABILIDADE_TAMANHO; i++) {
+        for (int j = 0; j < HABILIDADE_TAMANHO; j++) {
+            int tabuleiroLinha = origemConeLinha + i - centroHabilidade;
+            int tabuleiroColuna = origemConeColuna + j - centroHabilidade;
+            if (tabuleiroLinha >= 0 && tabuleiroLinha < TAMANHO && tabuleiroColuna >= 0 && tabuleiroColuna < TAMANHO && cone[i][j] == 1) {
+                if (tabuleiro[tabuleiroLinha][tabuleiroColuna] != 3) { // Não sobrescreve navios
+                    tabuleiro[tabuleiroLinha][tabuleiroColuna] = 5;
+                }
+            }
         }
-        printf("\n"); 
     }
 
-    return 0; 
+    // Aplica a habilidade de cruz ao tabuleiro
+    for (int i = 0; i < HABILIDADE_TAMANHO; i++) {
+        for (int j = 0; j < HABILIDADE_TAMANHO; j++) {
+            int tabuleiroLinha = origemCruzLinha + i - centroHabilidade;
+            int tabuleiroColuna = origemCruzColuna + j - centroHabilidade;
+            if (tabuleiroLinha >= 0 && tabuleiroLinha < TAMANHO && tabuleiroColuna >= 0 && tabuleiroColuna < TAMANHO && cruz[i][j] == 1) {
+                if (tabuleiro[tabuleiroLinha][tabuleiroColuna] != 3) {
+                    tabuleiro[tabuleiroLinha][tabuleiroColuna] = 5;
+                }
+            }
+        }
+    }
+
+    // Aplica a habilidade de octaedro ao tabuleiro
+    for (int i = 0; i < HABILIDADE_TAMANHO; i++) {
+        for (int j = 0; j < HABILIDADE_TAMANHO; j++) {
+            int tabuleiroLinha = origemOctaedroLinha + i - centroHabilidade;
+            int tabuleiroColuna = origemOctaedroColuna + j - centroHabilidade;
+            if (tabuleiroLinha >= 0 && tabuleiroLinha < TAMANHO && tabuleiroColuna >= 0 && tabuleiroColuna < TAMANHO && octaedro[i][j] == 1) {
+                if (tabuleiro[tabuleiroLinha][tabuleiroColuna] != 3) {
+                    tabuleiro[tabuleiroLinha][tabuleiroColuna] = 5;
+                }
+            }
+        }
+    }
+
+    // Exibe o tabuleiro com as habilidades
+    printf("  ");
+    for (int i = 0; i < TAMANHO; i++) {
+        printf("%c ", linhas[i]);
+    }
+    printf("\n");
+
+    for (int i = 0; i < TAMANHO; i++) {
+        printf("%2d ", i);
+        for (int j = 0; j < TAMANHO; j++) {
+            printf("%d ", tabuleiro[i][j]);
+        }
+        printf("\n");
+    }
+
+    return 0;
 }
